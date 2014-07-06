@@ -1,5 +1,6 @@
 package edu.vuum.mocca;
 
+import java.util.concurrent.locks.AbstractQueuedLongSynchronizer.ConditionObject;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.Condition;
@@ -15,117 +16,109 @@ import java.util.concurrent.locks.Condition;
  */
 public class SimpleSemaphore {
     /**
-     * Define a Lock to protect the critical section.
+     * Define a ReentrantLock to protect the critical section.
      */
-<<<<<<< HEAD
-    public SimpleSemaphore (int permits,
-                            boolean fair)
-    { 
-        // TODO - you fill in here
-    	mLock = new ReentrantLock(fair);
-    	nPermits = permits;
-    	mCondition = mLock.newCondition();
-    }
-=======
     // TODO - you fill in here
->>>>>>> upstream/master
-
+	private ReentrantLock lock;
+	
     /**
      * Define a Condition that waits while the number of permits is 0.
      */
-<<<<<<< HEAD
-    public void acquire() throws InterruptedException {
-        // TODO - you fill in here
-    	while(availablePermits()==0)
-    		mCondition.await();
-
-    	mLock.lockInterruptibly();
-    	nPermits--;
-    }
-
-    /**
-     * Acquire one permit from the semaphore in a manner that
-     * cannot be interrupted.
-     * @throws InterruptedException 
-     */
-    public void acquireUninterruptibly() throws InterruptedException {
-        // TODO - you fill in here
-
-    	while(availablePermits()==0)
-    		mCondition.await();
-
-    	mLock.lock();
-    	nPermits--;
-=======
     // TODO - you fill in here
-
+	private Condition condition;
+	
     /**
      * Define a count of the number of available permits.
      */
     // TODO - you fill in here.  Make sure that this data member will
     // ensure its values aren't cached by multiple Threads..
+	private SimpleAtomicLong mPermits;
+	
+	
+	
+	private boolean fair;
 
     public SimpleSemaphore(int permits, boolean fair) {
         // TODO - you fill in here to initialize the SimpleSemaphore,
         // making sure to allow both fair and non-fair Semaphore
         // semantics.
->>>>>>> upstream/master
+    	this.mPermits = new SimpleAtomicLong(permits);
+    	this.fair = fair;
+    	lock = new ReentrantLock(fair);
+    	condition = lock.newCondition();
     }
 
     /**
      * Acquire one permit from the semaphore in a manner that can be
      * interrupted.
      */
-<<<<<<< HEAD
-    void release() {
-        // TODO - you fill in here
-    	mLock.unlock();
-    	nPermits++;
-=======
     public void acquire() throws InterruptedException {
         // TODO - you fill in here.
->>>>>>> upstream/master
+    	boolean success = false;
+    	do {
+	    	lock.lockInterruptibly();
+	    	try {
+	    		int permits = (int) mPermits.get();
+	    		if(permits > 0) {
+	    			mPermits.decrementAndGet();
+	    			success = true;
+	    		} else {
+	    			condition.await();
+	    		}
+	    	} finally {
+	    		lock.unlock();
+	    	}
+    	} while (!success);
+    		
     }
 
     /**
      * Acquire one permit from the semaphore in a manner that cannot be
      * interrupted.
      */
-<<<<<<< HEAD
-    public int availablePermits(){
-    	// TODO - you fill in here
-    	return nPermits; // You will change this value. 
-=======
     public void acquireUninterruptibly() {
-        // TODO - you fill in here.
->>>>>>> upstream/master
+    	boolean success = false;
+    	do {
+	    	lock.lock();
+	    	try {
+	    		int permits = (int) mPermits.get();
+	    		if(permits > 0) {
+	    			mPermits.decrementAndGet();
+	    			success = true;
+	    		} else {
+	    			condition.awaitUninterruptibly();
+	    		}
+	    	} finally {
+	    		lock.unlock();
+	    	}
+    	} while (!success);
     }
 
-    private final ReentrantLock mLock;
-    
     /**
      * Return one permit to the semaphore.
      */
-<<<<<<< HEAD
-    // TODO - you fill in here
-    private final Condition mCondition;
-=======
-    public void release() {
+    void release() {
         // TODO - you fill in here.
+    	lock.lock();
+    	try {
+    		mPermits.incrementAndGet();
+    		condition.signalAll();
+    	} finally {
+    		lock.unlock();
+    	}
     }
->>>>>>> upstream/master
 
     /**
      * Return the number of permits available.
      */
-<<<<<<< HEAD
-    // TODO - you fill in here
-    private int nPermits; 
-=======
     public int availablePermits() {
         // TODO - you fill in here by changing null to the appropriate
         // return value.
-        return null;
+    	lock.lock();
+    	try {
+        	return (int) mPermits.get();
+    	} finally {
+    		lock.unlock();
+    	}
     }
->>>>>>> upstream/master
 }

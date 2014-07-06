@@ -48,14 +48,22 @@
         <!-- THIS IS THE EDIT ACTIVITY -->
         <activity android:name="edu.vuum.mocca.ui.EditStoryActivity" > <!-- Line 49 -->
         </activity>
-        
+                
         <!-- THIS IS THE SOUND RECORD ACTIVITY -->
+        <!-- DONE: To fix a security issue that appears in "Line 56" 
+                   I added a permission that requires other application to have
+                   the same access permission to audio record capture as the 
+                   current activity -->
+            
         <activity
             android:name="edu.vuum.mocca.ui.SoundRecordActivity"
-            android:label="@string/title_activity_sound_record">
+            android:label="@string/title_activity_sound_record"
+            android:permission="android.permission.CAPTURE_AUDIO_OUTPUT">
+             
             <intent-filter> 										<!-- Line 56 -->
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
             </intent-filter>
+            
         </activity>
         
     </application>

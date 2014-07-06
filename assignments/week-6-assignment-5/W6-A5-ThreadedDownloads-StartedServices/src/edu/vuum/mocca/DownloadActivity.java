@@ -78,6 +78,14 @@ public class DownloadActivity extends DownloadBase {
                 // bitmap that's been downloaded and returned to
                 // the DownloadActivity as a pathname who's Bundle
             	// key is defined by DownloadUtils.PATHNAME_KEY
+            	
+            	            	
+            	// Get a pathname
+            	String pathname = msg.getData().getString(DownloadUtils.PATHNAME_KEY);
+            	
+            	// Display the image
+            	activity.displayBitmap(pathname);
+            	
             }
     	}
     }
@@ -107,16 +115,26 @@ public class DownloadActivity extends DownloadBase {
             // TODO - You fill in here to start the
             // DownloadIntentService with the appropriate Intent
             // returned from the makeIntent() factory method.
-
-            which = "Starting IntentService";
+        	
+        	which = "Starting IntentService";
+        	
+            // Make the intent and start the service
+        	startService(DownloadIntentService.makeIntent(this, handler, getUrlString()));
+        	        	
             break;
         
         case R.id.thread_pool_button:
             // TODO - You fill in here to start the
             // ThreadPoolDownloadService with the appropriate Intent
             // returned from the makeIntent() factory method.
-
+        	
             which = "Starting ThreadPoolDownloadService";
+            
+            // Make the intent and start the service
+            
+                                
+            startService(ThreadPoolDownloadService.makeIntent(this, handler, getUrlString()));
+        	
             break;
         
         }

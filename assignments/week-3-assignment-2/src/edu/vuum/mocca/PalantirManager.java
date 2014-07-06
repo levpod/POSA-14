@@ -53,12 +53,7 @@ public class PalantirManager {
      * blocking until one is available.
      */
     public Palantir acquirePalantir() {
-        try {
-			mAvailable.acquireUninterruptibly();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        mAvailable.acquireUninterruptibly();
         return getNextAvailablePalantir();
     }
 

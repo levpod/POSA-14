@@ -48,8 +48,8 @@ public class ThreadPoolDownloadService extends Service {
         // TODO - You fill in here to replace null with a new
         // FixedThreadPool Executor that's configured to use
         // MAX_THREADS. Use a factory method in the Executors class.
-
-        mExecutor = null;
+    	
+        mExecutor = Executors.newFixedThreadPool(MAX_THREADS);
     }
 
     /**
@@ -73,8 +73,13 @@ public class ThreadPoolDownloadService extends Service {
     	// TODO - You fill in here, by replacing null with an
         // invocation of the appropriate factory method in
         // DownloadUtils that makes a MessengerIntent.
+    	
+    	Intent intent = DownloadUtils.makeMessengerIntent(context,
+    			ThreadPoolDownloadService.class,
+    			handler,
+    			uri);
 
-        return null;
+        return intent;
     }
 
     /**
@@ -93,7 +98,19 @@ public class ThreadPoolDownloadService extends Service {
         // the uri in the intent and returns the file's pathname using
         // a Messenger who's Bundle key is defined by DownloadUtils.MESSENGER_KEY.
 
-        Runnable downloadRunnable = null;
+        Runnable downloadRunnable = new Runnable() {
+        	@Override
+        	public void run() {
+
+        		// Extract the Messenger
+        		Messenger messenger = (Messenger) intent.getExtras().get("MESSENGER");
+
+        		// Download the requested image.
+        		DownloadUtils.downloadAndRespond(ThreadPoolDownloadService.this,
+        				intent.getData(),
+        				messenger);
+        	}
+        };
 
         mExecutor.execute(downloadRunnable);
       
